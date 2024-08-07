@@ -4,17 +4,56 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Minecraft Bedrock Finder</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet"> <!-- Przykład użycia Google Fonts -->
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Roboto', sans-serif; /* Zastosowanie własnego fontu */
             margin: 20px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            color: #333;
         }
         label, button {
             margin-top: 10px;
             display: block;
+            font-size: 16px;
+        }
+        input[type="text"] {
+            padding: 8px;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
         }
         .result {
             margin-top: 20px;
+            padding: 10px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .result p {
+            margin: 0;
+        }
+        .result a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        .result a:hover {
+            text-decoration: underline;
+        }
+        .footer {
+            margin-top: 30px;
+            font-size: 14px;
+            color: #777;
         }
     </style>
 </head>
@@ -26,9 +65,13 @@
 
     <div class="result" id="result"></div>
 
+    <div class="footer">
+        <p>By Kna</p>
+    </div>
+
     <script>
         async function searchInfo() {
-            const username = document.getElementById('username').value;
+            const username = document.getElementById('username').value.trim();
             if (!username) {
                 document.getElementById('result').innerHTML = '<p style="color: red;">Proszę wpisać nazwę użytkownika!</p>';
                 return;
@@ -37,6 +80,8 @@
             try {
                 // Fetch XUID
                 const xuidResponse = await fetch(`https://api.geysermc.org/v2/xbox/xuid/${username}`);
+                if (!xuidResponse.ok) throw new Error('Failed to fetch XUID data');
+                
                 const xuidData = await xuidResponse.json();
                 const xuid = xuidData.xuid;
                 
@@ -47,6 +92,8 @@
 
                 // Fetch Skin Texture ID
                 const skinResponse = await fetch(`https://api.geysermc.org/v2/skin/${xuid}`);
+                if (!skinResponse.ok) throw new Error('Failed to fetch skin data');
+                
                 const skinData = await skinResponse.json();
                 const textureId = skinData.texture_id;
 
@@ -65,9 +112,9 @@
                     <p><a href="${xuidUrl}" target="_blank">Otwórz URL XUID</a></p>
                 `;
             } catch (error) {
-                document.getElementById('result').innerHTML = '<p style="color: red;">Wystąpił błąd podczas pobierania danych.</p>';
+                document.getElementById('result').innerHTML = `<p style="color: red;">Wystąpił błąd: ${error.message}</p>`;
             }
         }
     </script>
 </body>
-  </html>
+</html>
