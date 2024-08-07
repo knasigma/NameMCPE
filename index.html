@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minecraft Bedrock Finder</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        label, button {
+            margin-top: 10px;
+            display: block;
+        }
+        .result {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Minecraft Bedrock Finder</h1>
+    <label for="username">Wpisz nazwę z Minecraft Bedrock, aby znaleźć XUID:</label>
+    <input type="text" id="username" name="username">
+    <button onclick="searchInfo()">Szukaj</button>
+
+    <div class="result" id="result"></div>
+
+    <script>
+        async function searchInfo() {
+            const username = document.getElementById('username').value;
+            if (!username) {
+                document.getElementById('result').innerHTML = '<p style="color: red;">Proszę wpisać nazwę użytkownika!</p>';
+                return;
+            }
+
+            try {
+                // Fetch XUID
+                const xuidResponse = await fetch(`https://api.geysermc.org/v2/xbox/xuid/${username}`);
+                const xuidData = await xuidResponse.json();
+                const xuid = xuidData.xuid;
+                
+                if (!xuid) {
+                    document.getElementById('result').innerHTML = '<p style="color: red;">Nie znaleziono XUID dla podanej nazwy użytkownika.</p>';
+                    return;
+                }
+
+                // Fetch Skin Texture ID
+                const skinResponse = await fetch(`https://api.geysermc.org/v2/skin/${xuid}`);
+                const skinData = await skinResponse.json();
+                const textureId = skinData.texture_id;
+
+                if (!textureId) {
+                    document.getElementById('result').innerHTML = '<p style="color: red;">Nie znaleziono tekstury dla podanego XUID.</p>';
+                    return;
+                }
+
+                const skinUrl = `https://textures.minecraft.net/texture/${textureId}`;
+                const xuidUrl = `https://api.geysermc.org/v2/xbox/xuid/${username}`;
+
+                document.getElementById('result').innerHTML = `
+                    <p>XUID: ${xuid}</p>
+                    <p>Texture ID: ${textureId}</p>
+                    <p><a href="${skinUrl}" target="_blank">Otwórz URL Tekstury</a></p>
+                    <p><a href="${xuidUrl}" target="_blank">Otwórz URL XUID</a></p>
+                `;
+            } catch (error) {
+                document.getElementById('result').innerHTML = '<p style="color: red;">Wystąpił błąd podczas pobierania danych.</p>';
+            }
+        }
+    </script>
+</body>
+  </html>
